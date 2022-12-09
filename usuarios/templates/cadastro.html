@@ -6,39 +6,12 @@
 
 <div class="container">
     <br>
-    {% if status == '0' %}
-        <div class="alert alert-success" role="alert">
-            Cadastro efetuado com sucesso.
-        </div>
-      
-    {% endif %}
-
-    {% if status == '1' %}
-        <div class="alert alert-danger" role="alert">
-            Escreva algo no Email e Senha.
-        </div>
-  
-    {% endif %}
-
-    {% if status == '2' %}
-        <div class="alert alert-danger" role="alert">
-            Sua senha deve ter no mínimo 8 caracteres.
-        </div>
-
-    {% endif %}
-
-    {% if status == '3' %}
-        <div class="alert alert-danger" role="alert">
-            Email já cadastrado.
-        </div>
-
-    {% endif %}
-
-    {% if status == '4' %}
-        <div class="alert alert-danger" role="alert">
-            Erro interno do sistema.
-        </div>
-
+    {% if messages %}
+        {% for i in messages %}
+            <div class="alert {{i.tags}}" role="alert">
+            {{i}}
+            </div>
+        {% endfor %}
     {% endif %}
     <div class="row">
 

@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from .models import Usuario
 from hashlib import sha256
+from django.contrib import messages
 
 def login(request):
     status = request.GET.get('status')
@@ -18,18 +19,21 @@ def valida_cadastro(request):
     email = request.POST.get('email')
     senha = request.POST.get('senha')
 
-    # Nome e email não podem ser nulos
+    
     if len(nome.strip()) == 0 or len(email.strip()) == 0:
-        return redirect('/auth/cadastro/?status=1')
+        messages.add_message(request, messages.constants.ERROR, 'Nome e email não podem ser nulos')
+        return redirect('/auth/cadastro/')
     
     if len(senha) < 8:
-        return redirect('/auth/cadastro/?status=2')
+        messages.add_message(request, messages.constants.ERROR, 'Sua senha deve ter no mínimo 8 caracteres')
+        return redirect('/auth/cadastro/')
 
     # Verifica se o usuário já existe no sistema
     usuario = Usuario.objects.filter(email = email)
 
     if len(usuario) > 0:
-        return redirect('/auth/cadastro/?status=3')
+        messages.add_message(request, messages.constants.ERROR, 'Email já cadastrado no sistema')
+        return redirect('/auth/cadastro/')
 
     try:
         # Criptografia sha256 na senha
@@ -42,10 +46,12 @@ def valida_cadastro(request):
             email = email
         )
         usuario.save()
-        return redirect('/auth/cadastro/?status=0')
+        messages.add_message(request, messages.constants.SUCCESS, 'Cadastro efetuado com sucesso')
+        return redirect('/auth/cadastro/')
     
     except:
-        return redirect('/auth/cadastro/?status=4')
+        messages.add_message(request, messages.constants.ERROR, 'Erro interno do sistema')
+        return redirect('/auth/cadastro/')
 
 def valida_login(request):
     email = request.POST.get('email')
@@ -57,15 +63,15 @@ def valida_login(request):
     # Verifica se existe o usuário digitado 
     usuario = Usuario.objects.filter(email = email).filter(senha=senha)
     if len(usuario) == 0:
-        return redirect('/auth/login/?status=1')
+        messages.add_message(request, messages.constants.WARNING, 'Email ou senha inválido')
+        return redirect('/auth/login/')
     elif len(usuario) > 0:
         request.session['logado'] = True
         request.session['usuario_id'] = usuario[0].id
         return redirect('/plataforma/home')
 
 
-    return HttpResponse(f"{email}  {senha}")
-
 def sair(request):
     request.session.flush()
+    messages.add_message(request, messages.constants.WARNING, 'Faça o login antes de acessar a plataforma')
     return redirect('/auth/login')

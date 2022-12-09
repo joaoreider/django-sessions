@@ -7,19 +7,16 @@
 
 <div class="container">
     <br>
-    {% if status == '1' %}
-        <div class="alert alert-warning" role="alert">
-            Email ou senha inválidos.
-        </div>
-      
+
+    {% if messages %}
+        {% for i in messages %}
+            <div class="alert {{i.tags}}" role="alert">
+               {{i}}
+            </div>
+        {% endfor %}
     {% endif %}
 
-    {% if status == '2' %}
-        <div class="alert alert-warning" role="alert">
-            Faça o login para acessar o sistema
-        </div>
-    
-    {% endif %}
+
 
     <div class="row">
 
