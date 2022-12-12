@@ -1,16 +1,25 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from .models import Usuario
 from hashlib import sha256
 from django.contrib import messages, auth
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from .models import Users as User
+from django.views.decorators.csrf import csrf_protect
 
+@csrf_protect
 def login(request):
+    # Se o usuário está logado nao consegue fazer outro login
+    if request.user.is_authenticated:
+        return redirect('/plataforma/home')
     status = request.GET.get('status')
     return render(request, 'login.html', {'status':status})
 
+@csrf_protect
 def cadastro(request):
+
+    if request.user.is_authenticated:
+        return redirect('/plataforma/home')
     # Recebe o status da url
     status = request.GET.get('status')
     return render(request, 'cadastro.html', {'status':status})
@@ -19,6 +28,10 @@ def valida_cadastro(request):
     nome = request.POST.get('nome')
     email = request.POST.get('email')
     senha = request.POST.get('senha')
+
+    cep = request.POST.get('cep')
+    rua = request.POST.get('rua')
+    numero = request.POST.get('numero')
 
     
     if len(nome.strip()) == 0 or len(email.strip()) == 0:
@@ -38,8 +51,9 @@ def valida_cadastro(request):
         return redirect('/auth/cadastro/')
 
     try:
-        usuario = User.objects.create_user(username=nome, email=email, password=senha)
+        usuario = User.objects.create_user(username=nome, email=email, password=senha, rua=rua, numero=numero, cep=cep)
         usuario.save()
+
         messages.add_message(request, messages.constants.SUCCESS, 'Cadastro efetuado com sucesso')
         return redirect('/auth/cadastro/')
     

@@ -129,5 +129,6 @@ MESSAGE_TAGS = {
 
 }
 
+AUTH_USER_MODEL = "usuarios.Users"
 
 
